@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reproductor de Canciones por Grado - ENGLISH DAY</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style id="app-style">
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f5f5f7;
+      color: #333;
+      overflow: hidden;
+      height: 100vh;
+    }
+    
+    .english-day-banner {
+      background: linear-gradient(90deg, #4f46e5, #7a1919);
+      color: white;
+      text-align: center;
+      padding: 0.5rem;
+      font-weight: bold;
+      font-size: 1.2rem;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+      position: relative;
+      z-index: 10;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    
+    .desktop {
+      padding: 2rem;
+      height: calc(100vh - 3rem);
+      background-image: url('https://cdn.pixabay.com/photo/2022/10/28/17/24/mountains-7553125_1280.jpg');
+      background-size: cover;
+      background-position: center;
+      overflow-y: auto;
+    }
+    
+    .folder {
+      transition: transform 0.2s;
+      cursor: pointer;
+    }
+    
+    .folder:hover {
+      transform: translateY(-5px);
+    }
+    
+    .folder-icon {
+      font-size: 3rem;
+      color: #3b82f6;
+      margin-bottom: 0.5rem;
+    }
+    
+    .content-view {
+      height: calc(100vh - 3rem);
+      background-color: #fff;
+      display: none;
+      overflow: hidden;
+    }
+    
+    .lyrics-panel {
+      height: 70vh;
+      overflow-y: auto;
+      padding: 1.5rem;
+      background-color: #f9f9f9;
+      border-radius: 0.5rem;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+    
+    .lyrics-panel::-webkit-scrollbar {
+      width: 8px;
+    }
+    
+    .lyrics-panel::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 4px;
+    }
+    
+    .lyrics-panel::-webkit-scrollbar-thumb {
+      background: #c1c1c1;
+      border-radius: 4px;
+    }
+    
+    .back-button {
+      transition: transform 0.2s;
+    }
+    
+    .back-button:hover {
+      transform: translateX(-3px);
+    }
+    
+    .video-container {
+      background-color: #000;
+      border-radius: 0.5rem;
+      overflow: hidden;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      position: relative;
+    }
+    
+    /* New Mobile Responsive CSS */
+    @media (max-width: 768px) {
+      .desktop {
+        grid-template-columns: 1fr !important;
+        padding: 1rem;
+        padding-bottom: 5rem;
+      }
+      
+      .folder {
+        padding: 0.75rem;
+      }
+      
+      .folder-icon {
+        font-size: 2.5rem;
+      }
+      
+      .content-view {
+        padding: 1rem;
+        padding-bottom: 5rem;
+      }
+      
+      #subfolders-view {
+        padding: 1rem;
+        padding-bottom: 5rem;
+      }
+      
+      .grid-cols-1.md\:grid-cols-2 {
+        grid-template-columns: 1fr !important;
+      }
+      
+      #grade-title {
+        font-size: 1.5rem;
+      }
+      
+      .lyrics-panel {
+        height: calc(100vh - 12rem);
+      }
+      
+      .mobile-navbar {
+        display: flex !important;
+      }
+      
+      .english-day-banner {
+        font-size: 1rem;
+        padding: 0.3rem;
+      }
+    }
+    
+    /* Mobile Navbar */
+    .mobile-navbar {
+      display: none;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background-color: white;
+      box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+      padding: 0.75rem;
+      z-index: 1000;
+      justify-content: space-around;
+    }
+    
+    .nav-button {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: #3b82f6;
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+    
+    .nav-button i {
+      font-size: 1.5rem;
+      margin-bottom: 0.25rem;
+    }
+    
+    #unified-content {
+      display: flex;
+      flex-direction: column;
+      height: calc(100vh - 8rem);
+    }
+    
+    @media (max-width: 768px) {
+      #unified-content {
+        height: calc(100vh - 12rem);
+      }
+      
+      #unified-content .video-container {
+        height: 40vh;
+      }
+      
+      #unified-content .lyrics-panel {
+        height: calc(60vh - 12rem);
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- ENGLISH DAY Banner -->
+  <div class="english-day-banner">
+    ENGLISH DAY - CANCIONES POR GRADO
+  </div>
+
+  <!-- Desktop View -->
+  <div id="desktop" class="desktop grid grid-cols-3 md:grid-cols-6 gap-6">
+    <div class="folder flex flex-col items-center" data-grade="6">
+      <div class="folder-icon">
+        <i class="fas fa-folder"></i>
+      </div>
+      <div class="text-center font-medium">Grado 6</div>
+    </div>
+    <div class="folder flex flex-col items-center" data-grade="7">
+      <div class="folder-icon">
+        <i class="fas fa-folder"></i>
+      </div>
+      <div class="text-center font-medium">Grado 7</div>
+    </div>
+    <div class="folder flex flex-col items-center" data-grade="8">
+      <div class="folder-icon">
+        <i class="fas fa-folder"></i>
+      </div>
+      <div class="text-center font-medium">Grado 8</div>
+    </div>
+    <div class="folder flex flex-col items-center" data-grade="9">
+      <div class="folder-icon">
+        <i class="fas fa-folder"></i>
+      </div>
+      <div class="text-center font-medium">Grado 9</div>
+    </div>
+    <div class="folder flex flex-col items-center" data-grade="10">
+      <div class="folder-icon">
+        <i class="fas fa-folder"></i>
+      </div>
+      <div class="text-center font-medium">Grado 10</div>
+    </div>
+    <div class="folder flex flex-col items-center" data-grade="11">
+      <div class="folder-icon">
+        <i class="fas fa-folder"></i>
+      </div>
+      <div class="text-center font-medium">Grado 11</div>
+    </div>
+  </div>
+
+  <!-- Subfolders View -->
+  <div id="subfolders-view" class="p-6 h-full" style="display: none; background-image: url('https://cdn.pixabay.com/photo/2022/10/28/17/24/mountains-7553125_1280.jpg'); background-size: cover; background-position: center;">
+    <div class="mb-6">
+      <button id="back-to-desktop-button" class="back-button flex items-center text-blue-600 font-medium bg-white bg-opacity-90 px-3 py-2 rounded-lg">
+        <i class="fas fa-arrow-left mr-2"></i> Volver al escritorio
+      </button>
+    </div>
+    <h2 id="grade-title" class="text-2xl font-semibold mb-6 text-white bg-black bg-opacity-50 inline-block px-4 py-2 rounded-lg"></h2>
+    <div class="grid grid-cols-1 gap-6">
+      <div id="song-subfolder" class="subfolder flex flex-col items-center p-6 bg-white bg-opacity-90 rounded-lg hover:transform hover:translate-y-[-5px] transition-transform duration-200 cursor-pointer">
+        <div class="text-5xl text-blue-500 mb-3">
+          <i class="fas fa-music"></i>
+        </div>
+        <div class="text-center font-medium text-lg">Ver Canción y Letra</div>
+      </div>
+      <div id="pdf-subfolder" class="subfolder flex flex-col items-center p-6 bg-white bg-opacity-90 rounded-lg hover:transform hover:translate-y-[-5px] transition-transform duration-200 cursor-pointer">
+        <div class="text-5xl text-red-500 mb-3">
+          <i class="fas fa-file-pdf"></i>
+        </div>
+        <div class="text-center font-medium text-lg">Descargar Letra en PDF</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Content View -->
+  <div id="content-view" class="content-view p-6">
+    <div class="mb-6">
+      <button id="back-button" class="back-button flex items-center text-blue-600 font-medium">
+        <i class="fas fa-arrow-left mr-2"></i> Volver
+      </button>
+    </div>
+    <div id="unified-content" class="flex flex-col gap-4 h-[calc(100vh-8rem)]">
+      <div class="video-container w-full" style="height: 40%;">
+        <video id="video-player" controls class="w-full h-full">
+          <source src="" type="video/mp4">
+          Tu navegador no soporta videos HTML5.
+        </video>
+      </div>
+      <div class="lyrics-panel w-full" id="lyrics-container" style="height: 60%; overflow-y: auto;">
+        <h2 id="song-title" class="text-2xl font-semibold mb-4"></h2>
+        <div id="lyrics-content" class="whitespace-pre-line text-gray-700 leading-relaxed"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile Navigation Bar -->
+  <div class="mobile-navbar">
+    <footer> <a href="https://www.ngxs.tech">Copyright © 2025 NEXTEGENS.</a></footer>
+  </div>
+
+  <script id="app-script">
+    // Sample song data for each grade
+    const songData = {
+      '1': {
+    title: 'Canción de Grado 1',
+    videoUrl: 'https://drive.google.com/file/d/1gpM_79FQrDyIPybtxLqWEnmlWd6RleTD/view?usp=sharing',
+    pdfUrl: 'https://drive.google.com/file/d/1wSJW29d51W41DyxXP5j-Ii5HPLL8uKoM/view?usp=drive_link',
+    lyrics: ``
+
+      },
+      '2': {
+        title: 'Cancion de grado 2',
+        videoUrl: '',
+        pdfUrl: '',
+        lyrics: ``
+      },
+
+      '3': {
+        title: 'Cancion de grado 3',
+        videoUrl: 'https://drive.google.com/file/d/1FjlrtiD0qnc6fip5eop6hsl7ccTaYfz4/view?usp=drive_link',
+        pdfUrl: 'https://drive.google.com/file/d/1Eto2qtc42o6AccsGnbwfk7SGHYNerpmp/view?usp=drive_link',
+        lyrics: ``
+      },
+
+      '4': {
+        title: 'Cancion de Grado 4',
+        videoUrl: 'https://drive.google.com/file/d/1CV_e4n2l84ptGi79derp9duMVDNES0dB/view?usp=drive_link',
+        pdfUrl: 'https://drive.google.com/file/d/1EbZ1gwIElicpiRqsjgvjXPYN-yECrSau/view?usp=drive_link',
+        lyrics: ``
+      },
+'   5': {
+    title: 'Canción de Grado 5',
+    videoUrl: 'https://drive.google.com/file/d/1fGiuATKI9Ujqq7v5kOvJmozCy71s34cy/view?usp=drive_link',
+    pdfUrl: 'https://drive.google.com/file/d/1dDG3T2BDp_7pfPJR4AF89HVbI5ACBvtI/view?usp=drive_link',
+    lyrics: ``
+
+}
+    };
+
+    // DOM elements
+    const desktop = document.getElementById('desktop');
+    const subfoldersView = document.getElementById('subfolders-view');
+    const contentView = document.getElementById('content-view');
+    const backButton = document.getElementById('back-button');
+    const backToDesktopButton = document.getElementById('back-to-desktop-button');
+    const videoPlayer = document.getElementById('video-player');
+    const songTitle = document.getElementById('song-title');
+    const lyricsContent = document.getElementById('lyrics-content');
+    const folders = document.querySelectorAll('.folder');
+    const gradeTitle = document.getElementById('grade-title');
+    const songSubfolder = document.getElementById('song-subfolder');
+    const pdfSubfolder = document.getElementById('pdf-subfolder');
+    const navHome = document.getElementById('nav-home');
+    const navBack = document.getElementById('nav-back');
+
+    // Track current grade and video elements
+    let currentGrade = null;
+    let currentVideoElement = videoPlayer;
+
+    // Function to stop all media playback
+    function stopAllMedia() {
+      // Stop HTML5 video
+      if (videoPlayer) {
+        videoPlayer.pause();
+        videoPlayer.currentTime = 0;
+        videoPlayer.src = '';
+      }
+      
+      // Stop YouTube/Google Drive iframes
+      const iframes = document.querySelectorAll('iframe');
+      iframes.forEach(iframe => {
+        iframe.src = '';
+      });
+    }
+
+    // Add click event listeners to folders
+    folders.forEach(folder => {
+      folder.addEventListener('click', () => {
+        const grade = folder.getAttribute('data-grade');
+        openSubfolders(grade);
+      });
+    });
+
+    // Back button event listener
+    backButton.addEventListener('click', () => {
+      stopAllMedia();
+      contentView.style.display = 'none';
+      subfoldersView.style.display = 'block';
+    });
+    
+    // Back to desktop button event listener
+    backToDesktopButton.addEventListener('click', () => {
+      stopAllMedia();
+      subfoldersView.style.display = 'none';
+      desktop.style.display = 'grid';
+      currentGrade = null;
+    });
+    
+    // Song subfolder click event
+    songSubfolder.addEventListener('click', () => {
+      openUnifiedContent(currentGrade);
+    });
+
+    // PDF subfolder click event
+    pdfSubfolder.addEventListener('click', () => {
+      downloadPDF(currentGrade);
+    });
+
+    // Function to open subfolders view
+    function openSubfolders(grade) {
+      stopAllMedia();
+      currentGrade = grade;
+      gradeTitle.textContent = `Grado ${grade}`;
+      
+      // Show subfolders view and hide desktop
+      desktop.style.display = 'none';
+      subfoldersView.style.display = 'block';
+    }
+    
+    // Function to open both video and lyrics content
+    function openUnifiedContent(grade) {
+      const song = songData[grade];
+      
+      if (song) {
+        // Get the video container element
+        const videoContainer = document.querySelector('.video-container');
+        
+        // Check if the video URL is from YouTube
+        if (song.videoUrl && (song.videoUrl.includes('youtube.com') || song.videoUrl.includes('youtu.be'))) {
+          // Hide the regular video player
+          videoPlayer.style.display = 'none';
+          
+          // Extract the YouTube video ID
+          let videoId = '';
+          
+          if (song.videoUrl.includes('youtube.com/watch?v=')) {
+            videoId = song.videoUrl.split('v=')[1];
+            const ampersandPosition = videoId.indexOf('&');
+            if (ampersandPosition !== -1) {
+              videoId = videoId.substring(0, ampersandPosition);
+            }
+          } else if (song.videoUrl.includes('youtu.be/')) {
+            videoId = song.videoUrl.split('youtu.be/')[1];
+            const questionMarkPosition = videoId.indexOf('?');
+            if (questionMarkPosition !== -1) {
+              videoId = videoId.substring(0, questionMarkPosition);
+            }
+          }
+          
+          // Create and insert the YouTube iframe if video ID was successfully extracted
+          if (videoId) {
+            videoContainer.innerHTML = `<iframe 
+              width="100%" 
+              height="100%" 
+              src="https://www.youtube.com/embed/${videoId}" 
+              frameborder="0" 
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+              allowfullscreen
+              style="border-radius: 0.5rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);"
+            ></iframe>`;
+            currentVideoElement = videoContainer.querySelector('iframe');
+          } else {
+            // Show error if YouTube URL is invalid
+            videoContainer.innerHTML = `
+              <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background-color: #f8f8f8; border-radius: 0.5rem;">
+                <div style="text-align: center; padding: 2rem;">
+                  <i class="fas fa-exclamation-triangle text-yellow-500 text-5xl mb-4"></i>
+                  <p class="text-lg font-medium text-gray-700">Error: El enlace de YouTube no es válido.</p>
+                </div>
+              </div>`;
+          }
+        // Check if the video URL is from Google Drive
+        } else if (song.videoUrl && song.videoUrl.includes('drive.google.com')) {
+          // Hide the regular video player
+          videoPlayer.style.display = 'none';
+          
+          // Extract the Google Drive file ID
+          let fileId = '';
+          
+          if (song.videoUrl.includes('/d/')) {
+            const startIndex = song.videoUrl.indexOf('/d/') + 3;
+            const endIndex = song.videoUrl.indexOf('/', startIndex);
+            if (endIndex !== -1) {
+              fileId = song.videoUrl.substring(startIndex, endIndex);
+            }
+          } else if (song.videoUrl.includes('id=')) {
+            const startIndex = song.videoUrl.indexOf('id=') + 3;
+            const endIndex = song.videoUrl.indexOf('&', startIndex);
+            if (endIndex !== -1) {
+              fileId = song.videoUrl.substring(startIndex, endIndex);
+            } else {
+              fileId = song.videoUrl.substring(startIndex);
+            }
+          }
+          
+          // Create and insert the Google Drive iframe if file ID was successfully extracted
+          if (fileId) {
+            videoContainer.innerHTML = `<iframe 
+              width="100%" 
+              height="100%" 
+              src="https://drive.google.com/file/d/${fileId}/preview" 
+              frameborder="0" 
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+              allowfullscreen
+              style="border-radius: 0.5rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);"
+            ></iframe>`;
+            currentVideoElement = videoContainer.querySelector('iframe');
+          } else {
+            // Show error if Google Drive URL is invalid
+            videoContainer.innerHTML = `
+              <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background-color: #f8f8f8; border-radius: 0.5rem;">
+                <div style="text-align: center; padding: 2rem;">
+                  <i class="fas fa-exclamation-triangle text-yellow-500 text-5xl mb-4"></i>
+                  <p class="text-lg font-medium text-gray-700">Error: El enlace de Google Drive no es válido.</p>
+                </div>
+              </div>`;
+          }
+        } else {
+          // For regular video URLs, use the video tag
+          videoPlayer.style.display = 'block';
+          videoPlayer.src = song.videoUrl;
+          videoPlayer.load();
+          currentVideoElement = videoPlayer;
+        }
+        
+        // Update lyrics content
+        songTitle.textContent = song.title;
+        lyricsContent.textContent = song.lyrics;
+        
+        // Show the unified content view
+        subfoldersView.style.display = 'none';
+        contentView.style.display = 'block';
+      }
+    }
+
+    // Function to download PDF
+    function downloadPDF(grade) {
+      const song = songData[grade];
+      
+      if (song && song.pdfUrl && song.pdfUrl.trim() !== '') {
+        // Check if it's a Google Drive link
+        if (song.pdfUrl.includes('drive.google.com')) {
+          let fileId = '';
+          
+          // Extract the Google Drive file ID
+          if (song.pdfUrl.includes('/d/')) {
+            const startIndex = song.pdfUrl.indexOf('/d/') + 3;
+            const endIndex = song.pdfUrl.indexOf('/', startIndex);
+            if (endIndex !== -1) {
+              fileId = song.pdfUrl.substring(startIndex, endIndex);
+            }
+          } else if (song.pdfUrl.includes('id=')) {
+            const startIndex = song.pdfUrl.indexOf('id=') + 3;
+            const endIndex = song.pdfUrl.indexOf('&', startIndex);
+            if (endIndex !== -1) {
+              fileId = song.pdfUrl.substring(startIndex, endIndex);
+            } else {
+              fileId = song.pdfUrl.substring(startIndex);
+            }
+          }
+          
+          if (fileId) {
+            // Create direct download link for Google Drive
+            const downloadUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
+            window.open(downloadUrl, '_blank');
+          } else {
+            // Fallback: open the original link
+            window.open(song.pdfUrl, '_blank');
+          }
+        } else {
+          // For direct PDF links
+          window.open(song.pdfUrl, '_blank');
+        }
+      } else {
+        // Show alert if no PDF is available
+        alert(`No hay PDF disponible para la canción de Grado ${grade}.\n\nPor favor, contacta al administrador para añadir el enlace del PDF.`);
+      }
+    }
+
+    // Mobile navigation
+    navHome.addEventListener('click', () => {
+      stopAllMedia();
+      contentView.style.display = 'none';
+      subfoldersView.style.display = 'none';
+      desktop.style.display = 'grid';
+      currentGrade = null;
+    });
+
+    navBack.addEventListener('click', () => {
+      stopAllMedia();
+      if (contentView.style.display === 'block') {
+        contentView.style.display = 'none';
+        subfoldersView.style.display = 'block';
+      } else if (subfoldersView.style.display === 'block') {
+        subfoldersView.style.display = 'none';
+        desktop.style.display = 'grid';
+        currentGrade = null;
+      }
+    });
+  </script>
+</body>
+</html>
